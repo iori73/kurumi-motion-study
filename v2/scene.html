@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Kurumi v2</title>
+<style>
+*{box-sizing:border-box;margin:0}
+:root{--paper:#e9e7e1;--navy:#1d3557;--ink:#16202c;--red:#d9482b;--teal:#2a8f9c}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--paper);font-family:-apple-system,"Helvetica Neue",sans-serif;color:var(--ink)}
+.serif{font-family:"Hoefler Text","Baskerville","Times New Roman",serif}
+.hand{font-family:"Bradley Hand","Noteworthy","Marker Felt",cursive}
+#stage{position:absolute;inset:0;transform-origin:50% 50%}
+.paper{position:absolute;inset:-40px;background-color:var(--paper);
+ background-image:
+  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='2000' height='1160'><filter id='b' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.0035 .005' numOctaves='3' seed='4'/><feColorMatrix values='0 0 0 0 .55 0 0 0 0 .54 0 0 0 0 .5 0 0 0 .55 -.18'/></filter><rect width='100%' height='100%' filter='url(%23b)'/></svg>"),
+  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .3 0 0 0 0 .28 0 0 0 0 .25 0 0 0 .12 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+ background-size:2000px 1160px,300px 300px;background-repeat:no-repeat,repeat;background-position:center,0 0}
+.scene{position:absolute;inset:0;display:none}
+.card{position:absolute;left:0;top:0;width:380px;border-radius:16px;background:#fff;box-shadow:0 10px 30px rgba(40,40,30,.22),0 1px 2px rgba(40,40,30,.2);padding:16px 20px;font-size:25px;line-height:1.3;transform-origin:50% 50%}
+.card .who{font-size:17px;color:#6a7a80;margin-bottom:6px;font-weight:600}
+.card.photo{background:#f6efd9;font-family:"Bradley Hand","Noteworthy",cursive;font-size:30px;color:var(--navy)}
+.card.voice .bars{display:flex;gap:4px;align-items:center;height:44px}
+.card.voice .bars i{display:block;width:5px;background:var(--teal);border-radius:3px}
+.card.email{border-left:8px solid #e0a43a}
+h1{position:absolute;font-weight:400;color:var(--navy);line-height:1.02;letter-spacing:-.01em}
+.cap{position:absolute;left:0;right:0;bottom:64px;text-align:center}
+.cap span{display:inline-block;background:rgba(29,53,87,.88);color:#fff;font-size:34px;padding:10px 26px;border-radius:12px;font-weight:500}
+#panel{position:absolute;left:480px;top:150px;width:960px;height:780px;background:#fbfaf6;border-radius:22px;box-shadow:0 30px 70px rgba(40,40,30,.35);padding:30px 40px;transform-origin:50% 100%}
+#panel h2{font-size:30px;display:flex;justify-content:space-between;align-items:baseline}
+#panel h2 span{font-size:21px;color:var(--teal);font-weight:600}
+.row{display:grid;grid-template-columns:300px 100px 100px 140px 1fr;align-items:center;height:64px;font-size:25px;border-bottom:1px solid #e6e1d3;padding:0 12px;border-radius:8px}
+.row.head{height:54px;font-size:17px;color:#7b8a8d;letter-spacing:.08em;margin-top:14px}
+.src{font-size:19px;color:#6a7a80}
+.chip{justify-self:start;font-size:20px;font-weight:600;padding:5px 16px;border-radius:999px;opacity:0}
+</style></head><body>
+<div id="stage"><div class="paper"></div>
+
+<div class="scene" id="s1"><h1 class="serif" style="left:120px;top:170px;font-size:128px">Orders arrive<br>all night.</h1><div id="s1cards"></div><div class="cap" id="cap1"><span>Chat, photo, voice, email.</span></div></div>
+
+<div class="scene" id="s2"><h1 class="serif" style="left:120px;top:90px;font-size:92px">Then someone <span class="hand" style="color:var(--red)">retypes</span><br>every one.</h1>
+<svg style="position:absolute;left:705px;top:188px;width:290px;height:40px"><path id="scrib" d="M4 22 C60 6, 120 36, 180 18 S300 30, 356 12" fill="none" stroke="#d9482b" stroke-width="5" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg>
+<div id="stack" style="position:absolute;left:960px;top:520px;width:380px;height:100px;transform-style:preserve-3d"></div></div>
+
+<div class="scene" id="s3a" style="background:#14213d"><div id="clockwrap" style="position:absolute;left:0;right:0;top:130px;text-align:center"><svg width="460" height="460" viewBox="-100 -100 200 200"><circle r="92" fill="#f0eee6"/><g id="ticks"></g><line id="mh" x1="0" y1="0" x2="0" y2="-74" stroke="#14213d" stroke-width="4" stroke-linecap="round"/><line id="hh" x1="0" y1="0" x2="0" y2="-48" stroke="#14213d" stroke-width="6" stroke-linecap="round"/><circle r="6" fill="#d9482b"/></svg></div>
+<div class="serif" style="position:absolute;left:0;right:0;top:700px;text-align:center;font-size:130px;color:#f0eee6">5:40 am</div></div>
+
+<div class="scene" id="s3b"><div id="grid" style="position:absolute;left:300px;top:150px;width:1320px;background:#fff;box-shadow:0 20px 60px rgba(40,40,30,.3);border-radius:10px;overflow:hidden"></div><div class="hand" id="s3bnote" style="position:absolute;left:0;right:0;bottom:90px;text-align:center;font-size:76px;color:var(--red)">retype. retype. retype.</div></div>
+
+<div class="scene" id="s3c"><div class="serif" id="s3ctext" style="position:absolute;left:0;right:0;top:380px;text-align:center;font-size:190px;color:var(--navy)">Which tray?</div>
+<svg style="position:absolute;left:440px;top:600px;width:1040px;height:80px"><path id="s3cu" d="M10 40 C200 70, 500 10, 1030 38" fill="none" stroke="#d9482b" stroke-width="7" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"/></svg></div>
+
+<div class="scene" id="s4"><h1 class="serif" id="s4h" style="left:0;right:0;top:80px;text-align:center;font-size:96px">Two trays. Of what size?</h1>
+<div class="card" id="s4msg" style="width:520px;font-size:32px"><div class="who">Maya · chat</div>Two trays of croissants for Friday.</div>
+<div class="card" id="s4a" style="width:340px;text-align:center;font-size:30px;padding:26px"><div style="font-size:70px;font-weight:700;color:var(--navy)">12</div>per tray</div>
+<div class="card" id="s4b" style="width:340px;text-align:center;font-size:30px;padding:26px"><div style="font-size:70px;font-weight:700;color:var(--navy)">24</div>per tray</div>
+<div class="card" id="s4k" style="width:600px;font-size:28px;background:var(--navy);color:#fff"><div class="who" style="color:#9fc0e6">Kurumi</div>Past orders say Maya's trays hold 24.</div>
+<div class="card" id="s4r" style="width:560px;font-size:34px;border:3px solid #5fb89a"><div class="who">Entered</div><b>Croissants × 48</b> · Fri 7:00 ✓</div>
+<svg id="s4line" style="position:absolute;left:0;top:0;width:1920px;height:1080px"><path id="s4p" d="M1260 728 C1260 690, 1440 700, 1450 640" fill="none" stroke="#1d3557" stroke-width="4" stroke-dasharray="1" stroke-dashoffset="1" pathLength="1"/></svg></div>
+
+<div class="scene" id="s5"><div id="panel"><h2>Today's orders<span id="count">0 of 9 entered</span></h2>
+<div class="row head"><div>ITEM</div><div>QTY</div><div>DUE</div><div>SOURCE</div><div>STATUS</div></div><div id="rows"></div></div><div class="cap" id="cap5"><span></span></div></div>
+
+<div class="scene" id="s6"><div class="hand" id="s6top" style="position:absolute;left:0;right:0;top:150px;text-align:center;font-size:70px;color:var(--red)">every week</div>
+<div class="serif" id="s6num" style="position:absolute;left:0;right:0;top:260px;text-align:center;font-size:360px;color:var(--navy);line-height:1">0.0 hrs</div>
+<div style="position:absolute;left:0;right:0;top:700px;text-align:center;font-size:54px;color:var(--ink)">of retyping, handed back.</div>
+<div style="position:absolute;left:0;right:0;bottom:60px;text-align:center;font-size:22px;color:#6a7a80">Fictional product · demo figures</div></div>
+
+<div class="scene" id="s7" style="background:#14213d"><div id="s7in" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#f0eee6">
+<div style="width:110px;height:110px;border-radius:30px;background:linear-gradient(135deg,#7ff0d4,#2a8f9c);margin-bottom:36px"></div>
+<div class="serif" style="font-size:190px;line-height:1">Kurumi</div><div style="font-size:48px;opacity:.85;margin-top:16px">Every message, handled.</div>
+<div style="font-size:22px;opacity:.5;margin-top:70px">Fictional product · motion study</div></div></div>
+</div>
+<script>
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)),prog=(t,a,b)=>clamp((t-a)/(b-a)),lerp=(a,b,x)=>a+(b-a)*x;
+const eo=x=>1-Math.pow(1-x,4),eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const back=x=>{const c=1.9;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2);};
+const $=id=>document.getElementById(id);
+function P(el,x,y,r=0,s=1,o=1,blur=0,w=190,h=50){el.style.transform=`translate(${x-w}px,${y-h}px) rotate(${r}deg) scale(${s})`;el.style.opacity=o;el.style.filter=blur>.2?`blur(${blur}px)`:'none';}
+function mk(c,parent){const d=document.createElement('div');d.className='card '+c[0];d.innerHTML='<div class="who">'+c[1]+'</div>'+(c[0]==='voice'?'<div class="bars">'+Array.from({length:30},(_,i)=>'<i style="height:'+(10+Math.abs(Math.sin(i*1.7)*26))+'px"></i>').join('')+'</div>':'<div>'+c[2]+'</div>');parent.appendChild(d);return d;}
+const CARDS=[["chat","Maya · chat","Two trays of croissants for Friday 🙏",1060,300,-5],["photo","Photo of a note","12 sourdough loaves — Fri",1440,250,4],["voice","Voice message · 0:14","",1560,540,-3],["email","Email · Harbor Café","Weekend order: rye x4 for Saturday",1130,610,3],["chat","Priya · chat","Add 3 focaccia slabs Sat?",760,820,-4],["email","Email · PO #2041","30 pain au chocolat, due Tuesday",1480,850,5]];
+const s1c=CARDS.map(c=>mk(c,$('s1cards')));
+const stackCards=CARDS.slice(0,4).map(c=>{const d=mk(c,$('stack'));d.style.left='0';d.style.top='0';return d;});
+// clock ticks
+for(let i=0;i<12;i++){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',0);l.setAttribute('y1',-84);l.setAttribute('x2',0);l.setAttribute('y2',-76);l.setAttribute('stroke','#14213d');l.setAttribute('stroke-width',3);l.setAttribute('transform','rotate('+(i*30)+')');$('ticks').appendChild(l);}
+// grid
+const GR=[["croissants","48?","Fri"],["sourdough","12","Fri"],["baguettes","6","Fri"],["rye","4","Sat"],["cinnamon","24","Sat"],["focaccia","3","Sat"]];
+const gridEl=$('grid');const gcells=[];
+GR.forEach((r,i)=>{const row=document.createElement('div');row.style.cssText='display:grid;grid-template-columns:1fr 240px 240px;height:104px;border-bottom:1px solid #ddd;font-size:44px;align-items:center;padding:0 30px';r.forEach(()=>{const c=document.createElement('div');row.appendChild(c);gcells.push(c)});gridEl.appendChild(row);});
+// panel rows
+const R=[["Croissant trays","48","Fri","Chat"],["Sourdough loaves","12","Fri","Photo"],["Baguettes","6","Fri","Chat"],["Rye loaves","4","Sat","Email"],["Cinnamon rolls","24","Sat","Voice"],["Focaccia slabs","3","Sat","Chat"],["Brioche buns","48","Mon","Chat"],["Olive loaves","8","Mon","Photo"],["Pain au chocolat","30","Tue","Email"]];
+const RW=R.map(r=>{const d=document.createElement('div');d.className='row';d.innerHTML='<div></div><div></div><div></div><div class="src"></div><div><span class="chip"></span></div>';$('rows').appendChild(d);return {el:d,c:[...d.children],chip:d.querySelector('.chip'),r};});
+const ST=[[0,4.2,'s1'],[4.2,8.6,'s2'],[8.6,9.8,'s3a'],[9.8,11.0,'s3b'],[11.0,12.2,'s3c'],[12.2,22.5,'s4'],[22.5,32.5,'s5'],[32.5,38.5,'s6'],[38.5,45,'s7']];
+window.EVENTS=[];
+for(let i=0;i<6;i++)EVENTS.push({t:0.55+i*0.12,k:'tick'});
+EVENTS.push({t:5.9,k:'whoosh'});[8.6,9.8,11.0,12.2].forEach(t=>EVENTS.push({t,k:'thunk'}));
+[13.2,16.0,18.1,20.3].forEach(t=>EVENTS.push({t,k:'tick'}));EVENTS.push({t:22.5,k:'whoosh'});
+for(let i=0;i<9;i++)EVENTS.push({t:23.6+i*.55,k:'tick'});
+EVENTS.push({t:32.6,k:'whoosh'});EVENTS.push({t:38.8,k:'chime'});
+function seek(t){
+ ST.forEach(([a,b,id])=>{const e=$(id);const on=t>=a&&t<b;e.style.display=on?'block':'none';if(on){const f=Math.min(prog(t,a,a+.1),1-prog(t,b-.08,b));e.style.opacity=f<1?Math.max(f,.0):1;}});
+ $('stage').style.transform=`scale(${1+0.015*(t%1)*0})`;
+ // S1
+ if(t<4.2){const hs=document.querySelector('#s1 h1');hs.style.opacity=eo(prog(t,.1,.7));hs.style.transform=`translateY(${(1-eo(prog(t,.1,.9)))*40}px)`;
+  s1c.forEach((d,i)=>{const c=CARDS[i],s=.35+i*.12,p=eo(prog(t,s,s+.85));const fl=Math.sin(t*1.3+i)*6;
+   P(d,c[3],lerp(c[4]+520,c[4]+fl,p),lerp(c[5]+22,c[5],p),lerp(.8,1,p)*(1+.03*prog(t,0,4.2)),p,Math.pow(1-p,2)*9);});
+  const cp=$('cap1');cp.style.opacity=Math.min(prog(t,1.2,1.6),1-prog(t,3.7,4.1));}
+ // S2
+ if(t>=4.2&&t<8.6){const u=t-4.2;
+  const k=eio(prog(u,1.7,2.9));
+  $('stack').style.transform=`perspective(1900px) rotateX(${lerp(62,0,k)}deg) rotateZ(${lerp(-30,0,k)}deg) translate(${lerp(120,0,k)}px,${lerp(120,0,k)}px) scale(${lerp(1.9,1.35,k)})`;
+  stackCards.forEach((d,i)=>{const enter=eo(prog(u,i*.1,i*.1+.7));
+   const z=lerp(i*46,0,k),y=lerp(0,i*128-120,k);
+   d.style.transform=`translate3d(${(1-enter)*-220}px,${y}px,${z}px) rotate(${(1-enter)*-14}deg)`;d.style.opacity=enter;d.style.filter=enter<1?`blur(${(1-enter)*8}px)`:'none';});
+  const sc=$('scrib');sc.setAttribute('stroke-dashoffset',1-eo(prog(u,2.4,3.3)));
+  document.querySelector('#s2 h1').style.opacity=eo(prog(u,.1,.6));}
+ // S3
+ if(t>=8.6&&t<9.8){const u=t-8.6,k=eio(prog(u,0,1.1));$('mh').setAttribute('transform','rotate('+(k*240+0)+')');$('hh').setAttribute('transform','rotate('+(150+k*20)+')');$('clockwrap').style.transform=`scale(${1.12-.12*prog(u,0,1.2)})`;}
+ if(t>=9.8&&t<11.0){const u=t-9.8;
+  const txt=[["croissants","48?","Fri"],["sourdough","12","Fri"],["baguettes","6","Fri"],["rye","4","Sat"],["cinnamon","24","Sat"],["focaccia","3","Sat"]];
+  let n=Math.floor(u*38);gcells.forEach((c,i)=>{const s=txt[Math.floor(i/3)][i%3];const have=clamp(n-i*5,0,s.length);c.textContent=s.slice(0,have)+((have>0&&have<s.length&&Math.floor(u*8)%2)?'|':'');c.style.color=(i===1&&have>=2)?'#d9482b':'';});
+  $('s3bnote').style.opacity=eo(prog(u,.4,.8));$('grid').style.transform=`scale(${1.05-.05*prog(u,0,1.2)})`;}
+ if(t>=11.0&&t<12.2){const u=t-11.0;$('s3ctext').style.transform=`scale(${1.1-.1*eo(prog(u,0,.9))})`;$('s3cu').setAttribute('stroke-dashoffset',1-eo(prog(u,.3,.95)));}
+ // S4
+ if(t>=12.2&&t<22.5){const u=t-12.2;
+  const z=1+.06*prog(u,0,10.3);
+  $('s4').style.transform=`scale(${z})`;
+  const h=$('s4h');h.style.opacity=eo(prog(u,1.0,1.7));h.style.transform=`translateY(${(1-eo(prog(u,1,1.9)))*30}px)`;
+  const pm=eo(prog(u,.1,.9));P($('s4msg'),560,540,lerp(-6,-2,pm),1,pm,Math.pow(1-pm,2)*8,260,60);
+  const a=prog(u,3.8,4.7),b=prog(u,4.0,4.9);
+  P($('s4a'),lerp(1050,1180,eo(a)),lerp(840,520,eo(a)),lerp(8,3,eo(a)),1,eo(a)*(1-prog(u,6.4,7.0)*.75),Math.pow(1-eo(a),2)*10,170,90);
+  P($('s4b'),lerp(1500,1450,eo(b)),lerp(840,520,eo(b)),lerp(-8,-3,eo(b)),1+.08*prog(u,6.1,6.7),eo(b),Math.pow(1-eo(b),2)*10,170,90);
+  const k=back(prog(u,5.9,6.7));P($('s4k'),1200,lerp(1100,780,clamp(k,0,1.05)),lerp(-4,0,k),1,prog(u,5.9,6.3),0,300,60);
+  $('s4p').setAttribute('stroke-dashoffset',1-eo(prog(u,6.5,7.2)));
+  const r=back(prog(u,8.1,8.9));P($('s4r'),960,lerp(1120,930,clamp(r,0,1.05)),0,lerp(.9,1,clamp(r,0,1)),prog(u,8.1,8.5),0,280,60);
+  const cap=0;}
+ // S5
+ if(t>=22.5&&t<32.5){const u=t-22.5;const pin=eo(prog(u,0,.9));
+  $('panel').style.transform=`perspective(1800px) translateY(${(1-pin)*260}px) rotateX(${(1-pin)*28}deg) scale(${1+.03*prog(u,0,10)})`;$('panel').style.opacity=pin;
+  let done=0;RW.forEach((o,i)=>{const a=1.1+i*.55,p=prog(u,a,a+.4);
+   o.r.forEach((txt,j)=>{const el=o.c[j<3?j:3];el.textContent=txt.slice(0,Math.ceil(txt.length*clamp(p*1.4)));});
+   o.chip.style.opacity=u>=a-.05?1:0;
+   if(u>=a+.45){o.chip.textContent='✓ Entered';o.chip.style.background='#d3f3e6';o.chip.style.color='#12795a';done++;}
+   else{o.chip.textContent='Reading…';o.chip.style.background='#fbe8bf';o.chip.style.color='#9a6a12';}
+   o.el.style.background=(u>=a+.45&&u<a+.95)?'rgba(127,240,212,'+(.38*(1-(u-a-.45)/.5))+')':'transparent';});
+  $('count').textContent=done+' of 9 entered';
+  const cs=$('cap5').firstElementChild,t1=prog(u,.4,.8)*(1-prog(u,4.6,5.0)),t2=prog(u,5.4,5.8)*(1-prog(u,9.5,9.9));
+  cs.textContent=t2>0?'and does the rest.':'Kurumi reads every message';$('cap5').style.opacity=Math.max(t1,t2);}
+ // S6
+ if(t>=32.5&&t<38.5){const u=t-32.5;const n=6.5*eo(prog(u,.5,3.0));$('s6num').textContent=n.toFixed(1)+' hrs';
+  $('s6num').style.transform=`scale(${.95+.05*eo(prog(u,0,1.2))})`;$('s6top').style.opacity=eo(prog(u,.2,.7));}
+ // S7
+ if(t>=38.5){const u=t-38.5;const e=eo(prog(u,.2,1.1));$('s7in').style.opacity=e;$('s7in').style.transform=`translateY(${(1-e)*24}px) scale(${1+.04*prog(u,0,6)})`;}
+}
+window.seek=seek;seek(0);
+</script></body></html>

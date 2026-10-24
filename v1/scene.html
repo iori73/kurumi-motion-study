@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Kurumi demo</title>
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#0b2b33;font-family:-apple-system,"Helvetica Neue","Hiragino Sans",sans-serif}
+#stage{position:absolute;inset:0;transform-origin:50% 50%}
+#bg{position:absolute;inset:0;background:radial-gradient(1400px 900px at 30% 30%,#14505c 0%,#0d3640 45%,#07202a 100%)}
+.bokeh{position:absolute;border-radius:50%;filter:blur(40px)}
+#field,#panelLayer{position:absolute;inset:0}
+.card{position:absolute;width:380px;border-radius:18px;background:#fff;box-shadow:0 18px 50px rgba(0,0,0,.35);padding:16px 20px;font-size:25px;color:#16282d;line-height:1.3;will-change:transform,opacity}
+.card .who{font-size:17px;color:#6a7f85;margin-bottom:6px;font-weight:600;letter-spacing:.02em;position:relative}
+.card>div{position:relative}
+.card.photo{background:#f3ecd6;font-family:"Bradley Hand","Noteworthy","Marker Felt",cursive;font-size:30px;color:#2b3a5c}
+.card.photo:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 33px,rgba(70,90,140,.18) 33px 34px);border-radius:18px}
+.card.voice .bars{display:flex;gap:4px;align-items:center;height:44px;margin-top:4px}
+.card.voice .bars i{display:block;width:5px;background:#2a8f9c;border-radius:3px}
+.card.email{border-left:8px solid #e0a43a}
+.read{position:absolute;inset:-5px;border-radius:22px;border:3px solid #5fe3c0;opacity:0;box-shadow:0 0 30px rgba(95,227,192,.7)}
+#beam{position:absolute;top:0;bottom:0;width:6px;background:linear-gradient(180deg,transparent,#7ff0d4 20%,#7ff0d4 80%,transparent);box-shadow:0 0 60px 26px rgba(127,240,212,.35);opacity:0}
+#panel{position:absolute;left:530px;top:170px;width:860px;height:740px;background:#fbfaf6;border-radius:24px;box-shadow:0 30px 90px rgba(0,0,0,.45);padding:30px 36px}
+#panel h2{font-size:30px;color:#16282d;display:flex;justify-content:space-between;align-items:baseline}
+#panel h2 span{font-size:21px;color:#2a8f9c;font-weight:600}
+.row{display:grid;grid-template-columns:330px 130px 120px 1fr;align-items:center;height:64px;font-size:25px;color:#16282d;border-bottom:1px solid #e6e1d3;padding:0 12px;border-radius:8px}
+.row.head{height:54px;font-size:17px;color:#7b8a8d;letter-spacing:.08em;margin-top:14px}
+.chip{justify-self:start;font-size:20px;font-weight:600;padding:5px 16px;border-radius:999px;background:#eceadd;color:#8a8570;opacity:0}
+#cap{position:absolute;left:0;right:0;bottom:70px;text-align:center;font-size:44px;font-weight:600;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.6);opacity:0}
+#stat{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;opacity:0}
+#stat b{font-size:240px;font-weight:700;letter-spacing:-.03em;line-height:1}
+#stat span{font-size:48px;opacity:.9;margin-top:14px}
+#stat small{font-size:22px;opacity:.55;margin-top:50px}
+#end{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;opacity:0}
+#end b{font-size:150px;font-weight:700;letter-spacing:-.02em}
+#end span{font-size:44px;opacity:.85;margin-top:12px}
+#end i{display:inline-block;width:92px;height:92px;border-radius:26px;background:linear-gradient(135deg,#7ff0d4,#2a8f9c);margin-bottom:34px}
+</style></head><body>
+<div id="stage"><div id="bg"></div><div id="bokehs"></div><div id="field"></div><div id="beam"></div>
+<div id="panelLayer"><div id="panel"><h2>Today's orders<span id="count">0 of 9 entered</span></h2>
+<div class="row head"><div>ITEM</div><div>QTY</div><div>DUE</div><div>STATUS</div></div><div id="rows"></div></div></div>
+<div id="stat"><b id="statnum">0</b><span>of retyping saved every week</span><small>Fictional product · demo figures</small></div>
+<div id="end"><i></i><b>Kurumi</b><span>Every message, handled.</span></div>
+<div id="cap"></div></div>
+<script>
+const W=1920,H=1080;
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const prog=(t,a,b)=>clamp((t-a)/(b-a));
+const eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const eo=x=>1-Math.pow(1-x,3);
+const lerp=(a,b,x)=>a+(b-a)*x;
+const R=[["Croissant trays","2","Fri"],["Sourdough loaves","12","Fri"],["Baguettes","6","Fri"],["Rye loaves","4","Sat"],["Cinnamon rolls","24","Sat"],["Focaccia slabs","3","Sat"],["Brioche buns","48","Mon"],["Olive loaves","8","Mon"],["Pain au chocolat","30","Tue"]];
+// type, who, text, field x, y, rot, depth(0..1)
+const C=[
+["chat","Maya · chat","Hi! Two trays of croissants for Friday please 🙏",300,250,-4,.2],
+["photo","Photo of a note","12 sourdough loaves — Fri ✓",960,170,3,.5],
+["chat","Daniel · chat","Baguettes x6 for Friday, thanks!",1560,300,-2,.3],
+["email","Email · Harbor Café","Weekend order: rye x4 for Saturday",420,560,3,.4],
+["voice","Voice message · 0:14","",1000,520,-3,.2],
+["chat","Priya · chat","Can we add 3 focaccia slabs Sat?",1500,640,4,.6],
+["chat","Lena · chat","brioche buns, 48, Monday!!",260,830,-3,.5],
+["photo","Photo of a note","olive loaves 8 — Mon",900,840,2,.3],
+["email","Email · PO #2041","30 pain au chocolat, due Tuesday",1560,850,-2,.4]];
+const D=[["chat","Sam · chat","are you open sunday?",640,380,-5,.9],["chat","Jo · chat","thanks!!",1250,420,5,.9],["photo","Photo","(blurry)",120,560,-6,.95],["chat","Ana · chat","see you at 7",1700,520,4,.9]];
+const field=document.getElementById('field');
+function mk(c){const d=document.createElement('div');d.className='card '+c[0];
+ d.innerHTML='<div class="who">'+c[1]+'</div>'+(c[0]==='voice'?'<div class="bars">'+Array.from({length:30},(_,i)=>'<i style="height:'+(10+Math.abs(Math.sin(i*1.7)*26))+'px"></i>').join('')+'</div>':'<div>'+c[2]+'</div>')+'<div class="read"></div>';
+ field.appendChild(d);return {el:d,c,read:d.querySelector('.read')};}
+const cards=C.map(mk),decor=D.map(mk);
+const bk=document.getElementById('bokehs');const B=[];
+for(let i=0;i<9;i++){const d=document.createElement('div');d.className='bokeh';const s=160+((i*53)%180);d.style.width=d.style.height=s+'px';d.style.background=['#2a8f9c','#7ff0d4','#e0a43a','#2a8f9c','#1d6f7a'][i%5];bk.appendChild(d);B.push({d,x:(i*211)%W,y:(i*137)%H,sp:6+i*2,ph:i});}
+const rowsEl=document.getElementById('rows');
+const RW=R.map(r=>{const d=document.createElement('div');d.className='row';d.innerHTML='<div></div><div></div><div></div><div><span class="chip"></span></div>';rowsEl.appendChild(d);return {el:d,cells:[...d.children].slice(0,3),chip:d.querySelector('.chip'),r};});
+const START=i=>4.3+i*0.22, ARR=i=>START(i)+0.75, TY=i=>170+30+40+14+54+64*i+32;
+const TX=680;
+const caps=[[0.4,3.8,"Orders arrive by chat, photo, and voice."],[4.2,8.0,"Kurumi reads every message"],[8.3,13.2,"and does the rest."]];
+const cap=document.getElementById('cap'),beam=document.getElementById('beam'),panel=document.getElementById('panel');
+const stat=document.getElementById('stat'),statnum=document.getElementById('statnum'),end=document.getElementById('end');
+function drift(c,t){return {x:c[3]-t*10*(1.2-c[6]),y:c[4]+Math.sin(t*.7+c[3]*.01)*14};}
+function seek(t){
+ document.getElementById('stage').style.transform='scale('+(1+0.04*prog(t,0,20))+')';
+ B.forEach(b=>{b.d.style.opacity=.16;b.d.style.transform='translate('+(b.x+Math.sin(t*.25+b.ph)*b.sp*4)+'px,'+(b.y+Math.cos(t*.2+b.ph)*b.sp*3)+'px)';});
+ const bx=lerp(-100,W+100,prog(t,3.7,5.6));
+ beam.style.left=bx+'px';beam.style.opacity=(t>3.6&&t<5.7)?1:0;
+ cards.forEach((o,i)=>{
+  const c=o.c,p=drift(c,t),a=eo(prog(t,0.1+i*0.18,0.9+i*0.18));
+  const sT=START(i),k=eio(prog(t,sT,sT+.9));
+  const x=lerp(p.x,TX,k),y=lerp(p.y,TY(i),k);
+  const s=lerp(lerp(.85,1,a)*(1-c[6]*.18),.34,k);
+  const op=a*(1-prog(t,sT+.55,sT+.95));
+  o.el.style.transform='translate('+(x-190)+'px,'+(y-45)+'px) rotate('+lerp(c[5],0,k)+'deg) scale('+s+')';
+  o.el.style.opacity=op;o.el.style.filter='blur('+(c[6]*3*(1-k))+'px)';
+  o.read.style.opacity=(t>3.7&&bx>p.x&&t<sT+.5)?1:0;
+ });
+ decor.forEach((o,i)=>{const c=o.c,p=drift(c,t),a=eo(prog(t,0.3+i*.2,1.2+i*.2));
+  o.el.style.transform='translate('+(p.x-190)+'px,'+(p.y-45)+'px) rotate('+c[5]+'deg) scale('+(lerp(.8,.95,a)*(1-c[6]*.25))+')';
+  o.el.style.opacity=a*.55*(1-prog(t,3.6,4.6));o.el.style.filter='blur('+(c[6]*6)+'px)';});
+ const pin=eo(prog(t,3.6,4.5)),pout=eio(prog(t,13.4,14.2));
+ panel.style.transform='translate('+((1-pin)*1000-pout*0)+'px,0) scale('+(1-pout*.15)+')';
+ panel.style.opacity=pin*(1-pout);
+ let done=0;
+ RW.forEach((o,i)=>{const a=ARR(i),p=prog(t,a,a+.45);
+  o.r.forEach((txt,j)=>{o.cells[j].textContent=txt.slice(0,Math.ceil(txt.length*clamp(p*1.3)));});
+  o.chip.style.opacity=t>=a-.05?1:0;
+  if(t>=a+.5){o.chip.textContent="✓ Entered";o.chip.style.background="#d3f3e6";o.chip.style.color="#12795a";done++;}
+  else{o.chip.textContent="Reading…";o.chip.style.background="#fbe8bf";o.chip.style.color="#9a6a12";}
+  o.el.style.background=(t>=a+.5&&t<a+1.0)?'rgba(127,240,212,'+(.4*(1-(t-a-.5)/.5))+')':"transparent";
+ });
+ document.getElementById('count').textContent=done+" of 9 entered";
+ let ct="",co=0;for(const [a,b,tx] of caps){if(t>=a&&t<=b){ct=tx;co=Math.min(prog(t,a,a+.35),1-prog(t,b-.3,b));}}
+ if(ct)cap.textContent=ct;cap.style.opacity=co;cap.style.transform='translateY('+((1-co)*12)+'px)';
+ const sa=eo(prog(t,14.2,15.0))*(1-prog(t,17.5,18.1));
+ stat.style.opacity=sa;stat.style.transform='scale('+lerp(.94,1,eo(prog(t,14.2,15.4)))+')';
+ statnum.textContent=(6.5*eo(prog(t,14.5,16.5))).toFixed(1)+" hrs";
+ const ea=eo(prog(t,18.0,18.8));end.style.opacity=ea;end.style.transform='translateY('+((1-ea)*20)+'px)';
+}
+window.seek=seek;seek(0);
+</script></body></html>
